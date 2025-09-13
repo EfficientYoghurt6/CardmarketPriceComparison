@@ -1,67 +1,45 @@
-"""HTTP client for retrieving expansion and card data.
+"""Client for retrieving card prices from the Cardmarket API."""
 
-The real Cardmarket API requires authentication. For the initial
-implementation the client consumes the public YGOProDeck API which exposes
-similar endpoints for sets and card information.  This allows the backend to
-provide useful data without credentials while keeping the service layer
-compatible with a future Cardmarket integration.
-"""
+from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import httpx
 
+from ..config import get_cardmarket_key
+
 
 class CardmarketClient:
-    """Client wrapper around the YGOProDeck API."""
+    """Minimal async client for Cardmarket pricing."""
 
-    BASE_URL = "https://db.ygoprodeck.com/api/v7"
+    BASE_URL = "https://api.cardmarket.com/ws/v2.0/output.json"
 
-    def __init__(self, client: Optional[httpx.AsyncClient] = None) -> None:
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        client: Optional[httpx.AsyncClient] = None,
+    ) -> None:
+        self._api_key = api_key or get_cardmarket_key()
         self._client = client
 
-    async def get_expansions(self) -> List[str]:
-        """Return available expansion names.
+    async def get_price(self, product_name: str) -> float:
+        """Return the market price for ``product_name``.
 
-        Uses a provided ``httpx.AsyncClient`` if supplied, otherwise creates a
-        temporary client for the request.
+        If no API key is configured the function returns ``0.0``.
         """
 
-        if self._client:
-            response = await self._client.get(f"{self.BASE_URL}/cardsets.php")
-        else:  # pragma: no cover - simple network call
-            async with httpx.AsyncClient() as client:
-                response = await client.get(f"{self.BASE_URL}/cardsets.php")
+        if not self._api_key:
+            return 0.0
 
-        response.raise_for_status()
-        data: List[Dict[str, Any]] = response.json()
-        return [entry["set_name"] for entry in data]
-
-    async def get_cards(self, expansion_name: str) -> List[Dict[str, Any]]:
-        """Return cards for a given expansion.
-
-        Each card includes its name and Cardmarket price if available.
-        """
+        headers = {"Authorization": f"Bearer {self._api_key}"}
+        url = f"{self.BASE_URL}/products/{product_name}"
 
         if self._client:
-            response = await self._client.get(
-                f"{self.BASE_URL}/cardinfo.php", params={"set": expansion_name}
-            )
+            response = await self._client.get(url, headers=headers)
         else:  # pragma: no cover - simple network call
             async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.BASE_URL}/cardinfo.php", params={"set": expansion_name}
-                )
+                response = await client.get(url, headers=headers)
 
         response.raise_for_status()
-        payload: Dict[str, Any] = response.json()
-        cards: List[Dict[str, Any]] = []
-        for card in payload.get("data", []):
-            price_info = card.get("card_prices", [{}])[0]
-            cards.append(
-                {
-                    "name": card["name"],
-                    "price": float(price_info.get("cardmarket_price", 0.0)),
-                }
-            )
-        return cards
+        data = response.json()
+        return float(data.get("price", 0.0))
