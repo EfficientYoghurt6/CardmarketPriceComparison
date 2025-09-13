@@ -7,6 +7,7 @@ from typing import Optional
 import httpx
 
 from ..config import get_cardmarket_key
+from .ygopro import YGOProClient
 
 
 class CardmarketClient:
@@ -18,18 +19,24 @@ class CardmarketClient:
         self,
         api_key: Optional[str] = None,
         client: Optional[httpx.AsyncClient] = None,
+        ygopro_client: Optional[YGOProClient] = None,
     ) -> None:
         self._api_key = api_key or get_cardmarket_key()
         self._client = client
+        self._ygopro_client = ygopro_client
 
     async def get_price(self, product_name: str) -> float:
         """Return the market price for ``product_name``.
 
-        If no API key is configured the function returns ``0.0``.
+        If no Cardmarket API key is configured the method falls back to the
+        public YGOProDeck API for pricing information.
         """
 
         if not self._api_key:
-            return 0.0
+            if self._ygopro_client:
+                return await self._ygopro_client.get_price(product_name)
+            # pragma: no cover - simple network call
+            return await YGOProClient().get_price(product_name)
 
         headers = {"Authorization": f"Bearer {self._api_key}"}
         url = f"{self.BASE_URL}/products/{product_name}"

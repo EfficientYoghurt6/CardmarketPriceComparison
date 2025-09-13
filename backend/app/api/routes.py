@@ -12,7 +12,7 @@ from ..services.ygopro import YGOProClient
 router = APIRouter()
 
 ygopro_client = YGOProClient()
-cardmarket_client = CardmarketClient()
+cardmarket_client = CardmarketClient(ygopro_client=ygopro_client)
 
 
 @router.get("/expansions")

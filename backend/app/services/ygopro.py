@@ -53,3 +53,31 @@ class YGOProClient:
         response.raise_for_status()
         payload: Dict[str, Any] = response.json()
         return [card["name"] for card in payload.get("data", [])]
+
+    async def get_price(self, card_name: str) -> float:
+        """Return the Cardmarket price for ``card_name``.
+
+        The public YGOProDeck API exposes Cardmarket pricing information in the
+        ``card_prices`` field.  If the card or price data is missing the method
+        returns ``0.0``.
+        """
+
+        if self._client:
+            response = await self._client.get(
+                f"{self.BASE_URL}/cardinfo.php", params={"name": card_name}
+            )
+        else:  # pragma: no cover - simple network call
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{self.BASE_URL}/cardinfo.php", params={"name": card_name}
+                )
+
+        response.raise_for_status()
+        data: Dict[str, Any] = response.json()
+        try:
+            price_str = (
+                data["data"][0]["card_prices"][0]["cardmarket_price"]
+            )
+            return float(price_str)
+        except (KeyError, IndexError, ValueError):
+            return 0.0
