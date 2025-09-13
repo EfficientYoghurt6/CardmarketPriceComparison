@@ -17,7 +17,8 @@ The project is split into a **FastAPI backend** and a **React + TypeScript front
 
 ### Backend
 - Exposes REST endpoints for expansions, card data and EV calculation.
-- Provides service layer stubs for Cardmarket API communication and EV computation.
+- Implements an HTTP client using the public YGOProDeck API for expansion and card data.
+- Includes an expected value utility that validates probability distributions.
 - Written in Python 3.11 with FastAPI.
 - Tests are executed with `pytest`.
 
