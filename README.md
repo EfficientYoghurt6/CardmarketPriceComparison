@@ -34,30 +34,37 @@ The project runs the backend and frontend in Docker containers, so the host only
 
 ### Windows (Docker Desktop)
 
-1. **Install prerequisites**
-   - [Download Docker Desktop](https://www.docker.com/products/docker-desktop) and run the installer.
-   - Enable the **WSL 2** option if prompted and reboot when requested.
-2. **Verify Docker is running**
-   - Start Docker Desktop and wait for the whale icon to become stable.
-   - Open PowerShell and run `docker --version` and `docker compose version` to confirm.
-3. **Clone this repository**
-   - Install [Git for Windows](https://git-scm.com/download/win) if needed.
+1. **Install Docker Desktop and WSL 2**
+   - Go to the [Docker Desktop download page](https://www.docker.com/products/docker-desktop) and run the installer.
+   - When prompted, leave **Use WSL 2 instead of Hyper-V** checked so Windows installs the required features.
+   - If WSL is missing, open **PowerShell as Administrator** and run `wsl --install`, then reboot.
+   - Make sure hardware virtualization is enabled in your BIOS (often listed as **Virtualization**, **VT-x**, or **SVM**).
+2. **Start Docker Desktop**
+   - Launch Docker Desktop from the Start menu and wait until the whale icon in the system tray stops spinning.
+   - In PowerShell run `docker --version` and `wsl -l -v` to confirm Docker and a WSL 2 distro are available. If `docker` isn't recognized, open a new PowerShell window or use the built‑in terminal in Docker Desktop.
+3. **Get this project**
+   - Install [Git for Windows](https://git-scm.com/download/win) or use **Code → Download ZIP** on GitHub and extract to `C:\Users\<you>`.
    - `git clone https://github.com/<your-user>/CardmarketPriceComparison.git` *(replace `<your-user>` with the GitHub user or organization name)*
    - `cd CardmarketPriceComparison`
-4. **(Optional) Add the API key**
-   - `echo CARDMARKET_API_KEY=<YOUR_TOKEN> > backend/.env`
-   - If omitted, pricing is sourced from the YGOProDeck API.
-5. **Build and start the stack**
-   - `docker compose build`
-   - `docker compose up`
+4. **Run with Docker Desktop UI (no console)**
+   - Open Docker Desktop, go to the **Containers** tab, and click **+ Create > Compose**.
+   - Browse to `docker-compose.yml` in the project folder and select **Run**. Docker Desktop builds the images and starts the containers; their status should turn green.
+   - Tip: click the **Docker AI** icon (beaker) and ask questions such as *"How do I build this compose file?"* if you need live guidance.
+5. **Run with PowerShell instead**
+   - From PowerShell in the project directory run:
+     - `docker compose build`
+     - `docker compose up`
 6. **Access the services**
    - Frontend: <http://localhost:3000>
    - Backend API: <http://localhost:8000>
 
 #### Troubleshooting
-- *Docker fails to start*: ensure hardware virtualization is enabled in the BIOS and that Hyper-V/WSL features are turned on.
-- *`git` or `docker` not recognized*: reopen PowerShell after installation or check that the tools were added to your PATH.
-- *File sharing errors*: keep the project in your user directory so Docker Desktop can mount it.
+- *Docker fails to start*: verify virtualization and WSL 2 are enabled; run `wsl --update` if the engine refuses to start.
+- *`git` or `docker` not recognized*: reopen PowerShell or use the terminal built into Docker Desktop.
+- *`docker compose` errors*: ensure you are inside the project folder and that you used `docker compose` (with a space), not the legacy `docker-compose`.
+- *File sharing or path errors*: keep the project inside your user directory (`C:\Users\<you>`) so Docker Desktop can mount it.
+- *Port 3000 or 8000 already in use*: stop the conflicting process or edit the `ports` in `docker-compose.yml`.
+- *Containers fail to build on Windows*: disable automatic line ending conversion with `git config core.autocrlf false` and clone again.
 
 
 ## Architecture
