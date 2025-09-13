@@ -2,6 +2,62 @@
 
 An extensible web application that compares prices of Yugioh singles and sealed products using the [Cardmarket API](https://api.cardmarket.com/). The app also estimates expected value (EV) per pack and will support more analytics features over time.
 
+## Setup Guide
+
+The project runs the backend and frontend in Docker containers, so the host only needs Docker and `docker-compose`.
+
+### Linux / TrueNAS SCALE
+
+1. **Install Docker and Compose**
+   - Ubuntu/Debian: `sudo apt update && sudo apt install docker.io docker-compose`
+   - TrueNAS SCALE: open the web UI, go to **Apps → Settings**, enable **Docker Compose**, and apply.
+2. **Allow your user to run Docker**
+   - `sudo usermod -aG docker $USER`
+   - log out and back in to apply the group change.
+3. **Clone this repository**
+   - `git clone https://github.com/<your-user>/CardmarketPriceComparison.git` *(replace `<your-user>` with the GitHub user or organization name)*
+   - `cd CardmarketPriceComparison`
+4. **Create the Cardmarket API key file**
+   - `echo "CARDMARKET_API_KEY=<YOUR_TOKEN>" > backend/.env`
+5. **Build and start the containers**
+   - `docker-compose build`
+   - `docker-compose up`
+6. **Visit the app**
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:8000`
+
+#### Troubleshooting
+- *Docker command not found*: ensure Docker is installed and the service is running (`sudo systemctl status docker`).
+- *Permission denied while connecting to Docker daemon*: run step 2 and re-login.
+- *Ports 3000 or 8000 already in use*: stop the conflicting service or edit `docker-compose.yml` to change the ports.
+
+### Windows (Docker Desktop)
+
+1. **Install prerequisites**
+   - [Download Docker Desktop](https://www.docker.com/products/docker-desktop) and run the installer.
+   - Enable the **WSL 2** option if prompted and reboot when requested.
+2. **Verify Docker is running**
+   - Start Docker Desktop and wait for the whale icon to become stable.
+   - Open PowerShell and run `docker --version` and `docker compose version` to confirm.
+3. **Clone this repository**
+   - Install [Git for Windows](https://git-scm.com/download/win) if needed.
+   - `git clone https://github.com/<your-user>/CardmarketPriceComparison.git` *(replace `<your-user>` with the GitHub user or organization name)*
+   - `cd CardmarketPriceComparison`
+4. **Add the API key**
+   - `echo CARDMARKET_API_KEY=<YOUR_TOKEN> > backend/.env`
+5. **Build and start the stack**
+   - `docker compose build`
+   - `docker compose up`
+6. **Access the services**
+   - Frontend: <http://localhost:3000>
+   - Backend API: <http://localhost:8000>
+
+#### Troubleshooting
+- *Docker fails to start*: ensure hardware virtualization is enabled in the BIOS and that Hyper-V/WSL features are turned on.
+- *`git` or `docker` not recognized*: reopen PowerShell after installation or check that the tools were added to your PATH.
+- *File sharing errors*: keep the project in your user directory so Docker Desktop can mount it.
+
+
 ## Architecture
 
 The project is split into a **FastAPI backend** and a **React + TypeScript frontend**. Each part runs in its own container and they are orchestrated with `docker-compose`.
