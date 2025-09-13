@@ -23,14 +23,17 @@ The project runs the backend and frontend in Docker containers, so the host only
 5. **Build and start the containers**
    - `docker-compose build`
    - `docker-compose up`
+   - When the services start you should see:
+     - `Backend API running on http://localhost:8100`
+     - `Frontend running on http://localhost:3100`
 6. **Visit the app**
-   - Frontend: `http://localhost:3000`
-   - Backend API: `http://localhost:8000`
+   - Frontend: `http://localhost:3100`
+   - Backend API: `http://localhost:8100`
 
 #### Troubleshooting
 - *Docker command not found*: ensure Docker is installed and the service is running (`sudo systemctl status docker`).
 - *Permission denied while connecting to Docker daemon*: run step 2 and re-login.
-- *Ports 3000 or 8000 already in use*: stop the conflicting service or edit `docker-compose.yml` to change the ports.
+- *Ports 3100 or 8100 already in use*: stop the conflicting service or edit `docker-compose.yml` to change the ports.
 
 ### Windows (Docker Desktop)
 
@@ -54,16 +57,18 @@ The project runs the backend and frontend in Docker containers, so the host only
    - From PowerShell in the project directory run:
      - `docker compose build`
      - `docker compose up`
+     - After the command prints `Backend API running on http://localhost:8100` and
+       `Frontend running on http://localhost:3100`, the services are ready.
 6. **Access the services**
-   - Frontend: <http://localhost:3000>
-   - Backend API: <http://localhost:8000>
+   - Frontend: <http://localhost:3100>
+   - Backend API: <http://localhost:8100>
 
 #### Troubleshooting
 - *Docker fails to start*: verify virtualization and WSL 2 are enabled; run `wsl --update` if the engine refuses to start.
 - *`git` or `docker` not recognized*: reopen PowerShell or use the terminal built into Docker Desktop.
 - *`docker compose` errors*: ensure you are inside the project folder and that you used `docker compose` (with a space), not the legacy `docker-compose`.
 - *File sharing or path errors*: keep the project inside your user directory (`C:\Users\<you>`) so Docker Desktop can mount it.
-- *Port 3000 or 8000 already in use*: stop the conflicting process or edit the `ports` in `docker-compose.yml`.
+- *Port 3100 or 8100 already in use*: stop the conflicting process or edit the `ports` in `docker-compose.yml`.
 - *Containers fail to build on Windows*: disable automatic line ending conversion with `git config core.autocrlf false` and clone again.
 
 
@@ -98,8 +103,8 @@ The project is split into a **FastAPI backend** and a **React + TypeScript front
 - Future analytics views can be added under `src/components`.
 
 ### Docker
-- `Dockerfile.backend` builds the FastAPI service and runs it with Uvicorn on port `8000`.
-- `Dockerfile.frontend` builds the React application and serves the static bundle through Nginx on port `3000`.
+- `Dockerfile.backend` builds the FastAPI service and runs it with Uvicorn on port `8100`.
+- `Dockerfile.frontend` builds the React application and serves the static bundle through Nginx on port `3100`.
 - `docker-compose.yml` wires both services together for local development.
 
 ## Development
@@ -124,7 +129,7 @@ docker-compose build
 docker-compose up
 ```
 
-The frontend will be available at `http://localhost:3000` and the backend API at `http://localhost:8000`.
+The frontend will be available at `http://localhost:3100` and the backend API at `http://localhost:8100`.
 
 ## License
 
