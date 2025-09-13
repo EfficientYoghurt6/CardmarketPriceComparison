@@ -4,42 +4,18 @@ import httpx
 
 from app.services.cardmarket import CardmarketClient
 
-def test_get_expansions() -> None:
+
+def test_get_price_includes_auth_header() -> None:
     async def handler(request: httpx.Request) -> httpx.Response:  # pragma: no cover - executed in test
-        return httpx.Response(200, json=[{"set_name": "Test Set"}])
+        assert request.headers.get("Authorization") == "Bearer test-key"
+        return httpx.Response(200, json={"price": 2.5})
 
     transport = httpx.MockTransport(handler)
 
-    async def run() -> list[str]:
+    async def run() -> float:
         async with httpx.AsyncClient(transport=transport) as client:
-            cm_client = CardmarketClient(client=client)
-            return await cm_client.get_expansions()
+            cm_client = CardmarketClient(api_key="test-key", client=client)
+            return await cm_client.get_price("Blue-Eyes")
 
-    expansions = asyncio.run(run())
-    assert expansions == ["Test Set"]
-
-
-def test_get_cards() -> None:
-    async def handler(request: httpx.Request) -> httpx.Response:  # pragma: no cover - executed in test
-        assert request.url.params.get("set") == "Test Set"
-        data = {
-            "data": [
-                {"name": "Card A", "card_prices": [{"cardmarket_price": "1.5"}]},
-                {"name": "Card B", "card_prices": [{"cardmarket_price": "0"}]},
-            ]
-        }
-        return httpx.Response(200, json=data)
-
-    transport = httpx.MockTransport(handler)
-
-    async def run() -> list[dict[str, float]]:
-        async with httpx.AsyncClient(transport=transport) as client:
-            cm_client = CardmarketClient(client=client)
-            return await cm_client.get_cards("Test Set")
-
-    cards = asyncio.run(run())
-
-    assert cards == [
-        {"name": "Card A", "price": 1.5},
-        {"name": "Card B", "price": 0.0},
-    ]
+    price = asyncio.run(run())
+    assert price == 2.5
