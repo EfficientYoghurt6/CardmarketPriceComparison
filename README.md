@@ -17,8 +17,9 @@ The project runs the backend and frontend in Docker containers, so the host only
 3. **Clone this repository**
    - `git clone https://github.com/<your-user>/CardmarketPriceComparison.git` *(replace `<your-user>` with the GitHub user or organization name)*
    - `cd CardmarketPriceComparison`
-4. **Create the Cardmarket API key file**
+4. **(Optional) Create the Cardmarket API key file**
    - `echo "CARDMARKET_API_KEY=<YOUR_TOKEN>" > backend/.env`
+   - Without this file the app will fall back to pricing data from the public YGOProDeck API.
 5. **Build and start the containers**
    - `docker-compose build`
    - `docker-compose up`
@@ -43,8 +44,9 @@ The project runs the backend and frontend in Docker containers, so the host only
    - Install [Git for Windows](https://git-scm.com/download/win) if needed.
    - `git clone https://github.com/<your-user>/CardmarketPriceComparison.git` *(replace `<your-user>` with the GitHub user or organization name)*
    - `cd CardmarketPriceComparison`
-4. **Add the API key**
+4. **(Optional) Add the API key**
    - `echo CARDMARKET_API_KEY=<YOUR_TOKEN> > backend/.env`
+   - If omitted, pricing is sourced from the YGOProDeck API.
 5. **Build and start the stack**
    - `docker compose build`
    - `docker compose up`
@@ -73,8 +75,9 @@ The project is split into a **FastAPI backend** and a **React + TypeScript front
 
 ### Backend
 - Exposes REST endpoints for expansions, card data and EV calculation.
-- Uses the public YGOProDeck API for expansion and card names and the
-  authenticated Cardmarket API for live pricing.
+- Uses the public YGOProDeck API for expansion and card names. If a
+  Cardmarket API key is supplied, pricing is pulled from Cardmarket;
+  otherwise YGOProDeck pricing is used.
 - Stores the Cardmarket API key in a local `.env` file which is excluded from
   version control. The key can be supplied via the console with
   `python -m app.cli --key <TOKEN>` or through the web UI form.
