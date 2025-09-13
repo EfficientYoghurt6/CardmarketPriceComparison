@@ -7,7 +7,7 @@ const ApiKeyForm: React.FC<ApiKeyFormProps> = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await fetch('http://localhost:8000/apikey', {
+    await fetch('http://localhost:8100/apikey', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ api_key: key })
